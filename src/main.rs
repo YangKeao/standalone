@@ -92,15 +92,18 @@ impl<'a> Visitor<'a> for Checker {
 fn main() {
     let matches = App::new("Standalone Checker")
         .version("1.0")
+        .bin_name("cargo")
         .author("Keao Yang <keao.yang@yahoo.com>")
-        .arg(Arg::with_name("mod")
-             .short("m")
-             .long("mod")
-             .value_name("MOD")
-             .takes_value(true))
+        .subcommand(clap::SubCommand::with_name("standalone")
+            .arg(Arg::with_name("mod")
+                 .short("m")
+                 .long("mod")
+                 .value_name("MOD")
+                 .takes_value(true)))
         .get_matches();
 
-    let mod_path = matches.value_of("mod").unwrap_or("").split("::").map(|item| item.to_owned()).collect::<Vec<String>>();
+    let sub_match = matches.subcommand_matches("standalone").unwrap();
+    let mod_path = sub_match.value_of("mod").unwrap_or("").split("::").map(|item| item.to_owned()).collect::<Vec<String>>();
 
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
