@@ -96,20 +96,26 @@ fn main() {
         .author("Keao Yang <keao.yang@yahoo.com>")
         .subcommand(clap::SubCommand::with_name("standalone")
             .arg(Arg::with_name("mod")
-                 .short("m")
-                 .long("mod")
-                 .value_name("MOD")
-                 .takes_value(true)))
+                .short("m")
+                .long("mod")
+                .value_name("MOD")
+                .takes_value(true))
+            .arg(Arg::with_name("entry")
+                .short("e")
+                .long("entry")
+                .value_name("ENTRY")
+                .takes_value(true)))
         .get_matches();
 
     let sub_match = matches.subcommand_matches("standalone").unwrap();
     let mod_path = sub_match.value_of("mod").unwrap_or("").split("::").map(|item| item.to_owned()).collect::<Vec<String>>();
+    let entry = sub_match.value_of("entry").unwrap_or("./src/lib.rs");
 
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
         let krate: Crate = 
-            match parse::parse_crate_from_file(Path::new("./src/lib.rs").as_ref(), &parse_session) {
+            match parse::parse_crate_from_file(Path::new(entry).as_ref(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
                 Ok(krate) => Ok(krate),
                 Err(e) => Err(Some(e))
